@@ -1,0 +1,39 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/mycss.css" %}" rel="stylesheet">
+    <script src="{% static "js/jquery-3.4.1.min.js" %}"></script>
+    <script>
+        {% block js %}
+        {% endblock %}
+    </script>
+</head>
+
+<body>
+    <div id="content" class="container-fluid">
+    <div class="row bg-light">
+        <div class="col-md-4 offset-md-4">
+            <nav class="navbar navbar-expand-sm bg-light">
+            <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#">我的</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'song:song_list' %}">首页</a>
+            </li>
+            </ul>
+            </nav>
+        </div>
+
+    </div>
+
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

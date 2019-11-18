@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load custom_template %}
+{% block title %} 歌曲列表 {% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-11 text-center">
+          <h1>歌曲列表</h1>
+        </div>
+    </div>
+
+    <div class="row ">
+        <div class="col-md-3 offset-md-4">
+            {% if search_word %}
+                <input type="text" class="form-control"  id="search-bar" value="{{ search_word }}">
+            {% else %}
+                <input type="text" class="form-control"  id="search-bar" placeholder="搜索歌名或歌手">
+            {% endif %}
+            <p></p>
+        </div>
+         <div class="col-md-2">
+             <button type="button" class="btn btn-outline-primary" id="search">搜索</button>
+         </div>
+    </div>
+
+    <div class="row">
+        {% if songs|length > 0 %}
+        <div class="col-md-4 offset-md-4">
+            <table class="table table-hover row mx-0 song-link">
+            <thead class="thead-light w-100">
+              <tr class="row mx-0">
+                  <th class="col-md-6"><a href="#" id="sort_by_name">&nbsp;&nbsp;&nbsp;&nbsp;歌曲名称</a></th>
+                  <th class="col-md-3"><a href="#" id="sort_by_singer">歌手</a></th>
+              </tr>
+            </thead>
+            <tbody class="w-100">
+            {% for song in songs %}
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="{{ song.poster.url }}" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="{{ song.get_absolute_url }}">&nbsp;&nbsp;{{ song.name }}</a>
+                </td>
+                <td class="col-md-3">{{ song.singer.name }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+            <div class="col-md-11 text-center">
+                <p></p><p></p><p>
+                <h1 class="text-muted">没有搜索结果</h1>
+            </div>
+        {% endif %}
+    </div>
+    {% if songs|length > 0 %}
+     <div class="row ">
+        <div class="col-md-4 offset-md-4">
+            <ul class="pagination">
+                {% if songs.has_previous %}
+                    <li class="page-item"><a class="page-link" href="??search_word={{ search_word }}&sort={{ sort }}&page={{ songs.previous_page_number }}"><</a></li>
+                {% endif %}
+                {% for i in songs.number|nrange:songs.paginator.num_pages %}
+                     {% if i == songs.number %}
+                         <li class="page-item active"><a class="page-link" href="?search_word={{ search_word }}&sort={{ sort }}&page={{ i }}">{{ i }}</a></li>
+                     {% else %}
+                         <li class="page-item"><a class="page-link" href="?search_word={{ search_word }}&sort={{ sort }}&page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {%  endfor %}
+
+                {% if songs.has_next %}
+                    <li class="page-item"><a class="page-link" href="?search_word={{ search_word }}&sort={{ sort }}&page={{ songs.next_page_number }}">></a></li>
+                {% endif %}
+            </ul>
+        </div>
+     </div>
+    {% endif %}
+{% endblock %}
+
+{% block js %}
+$(document).ready(function(){
+    var sort='0';
+    $("#search-bar").keypress(function (e){
+        if (e.which == 13) {
+             var word=$(this).val();
+            $(window).attr('location','?search_word='+word);
+        }
+    });
+
+    $("#search").click(function (){
+        var word=$("#search-bar").val();
+        $(window).attr('location','?search_word='+word);
+    });
+
+    $("#sort_by_name").click(function(){
+       sort='0';
+       $(this).attr('href',"?search_word={{ search_word }}&sort="+sort+"&page={{ songs.number }}");
+    });
+
+    $("#sort_by_singer").click(function(){
+        sort='1';
+        $(this).attr('href',"?search_word={{ search_word }}&sort="+sort+"&page={{ songs.number }}");
+    });
+
+});
+{% endblock %}

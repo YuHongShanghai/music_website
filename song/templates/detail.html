@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %} {{song.name}} {% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-primary text-center">{{song.name}}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+           <h3>{{song.singer.name}}</h3>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <img id="poster" class="rounded-circle  center-block" src="{{ song.poster.url }}" height="200" width="200" alt="暂无图片" >
+    </div>
+    <div class="row justify-content-center">
+        <audio src="{{ song.file.url }}" controls="controls">
+        您的浏览器不支持播放此类文件
+        </audio>
+    </div>
+    <div class="row justify-content-center">
+        <h4 id="tag-area">
+        {% for tag in song.tags.all %}
+            <button type="button" class="badge badge-pill btn btn-outline-dark">
+                <small>{{ tag.name }}</small>
+                <span class="badge badge-pill badge-info"><small>{{ tag.num }}</small></span>
+            </button>
+        {% endfor %}
+        </h4>
+    </div>
+    <div class="row justify-content-center">
+        <button type="button" class="badge badge-pill btn btn-outline-dark" id="add">
+          <span class="glyphicon glyphicon-plus"></span>+添加标签
+        </button>
+    </div>
+     <div class="row justify-content-center" id="input-label">
+        <div class="form-inline">
+            <input class="form-control form-control-sm" placeholder="请输入标签" id="tag_name">
+            <button class="badge badge-pill btn btn-outline-dark" id="add_done">添加</button>
+        </div>
+    </div>
+     <div class="row justify-content-center" id="info">
+        <p class="text-danger"></p>
+    </div>
+{% endblock %}
+
+{% block js %}
+$(document).ready(function(){
+    var audio=$("audio")[0];
+    var timer=null;
+    var angle = 0;
+    audio.addEventListener("play",function(){
+        timer=setInterval(function(){
+                angle+=0.3;
+              $("#poster").css({'transform':'rotate('+(angle)%360+'deg)'});
+          },10);
+    });
+    audio.addEventListener("pause",function(){
+        clearInterval(timer);
+    });
+
+    $("#input-label").hide();
+    $("#info").hide();
+
+    $("#tag_name").focus(function(){
+      $("#info").hide();
+    $("#tag_name").removeClass("border-danger");
+    });
+
+
+    $("#add").click(function () {
+        $(this).hide();
+        $("#input-label").show();
+    }
+    );
+     $("#add_done").click(function () {
+        var flag=1;
+
+        $.ajaxSetup({
+          async: false
+          });
+        $.post(window.location.href,
+        {
+            tag_name:$("#tag_name").val()
+        },
+        function(data,status){
+            var msg=data['msg'];
+            if(msg=='short'){
+                $("#info p:first").text("标签不能为空！");
+                $("#tag_name").val("");
+                $("#info").show();
+                $("#tag_name").addClass("border-danger");
+                flag=0;
+            };
+            if (msg=='long'){
+                 $("#info p:first").text("标签不能超过8个字符！");
+                $("#tag_name").val("");
+                $("#info").show();
+                $("#tag_name").addClass("border-danger");
+                flag=0;
+            };
+        });
+        if(flag==1){
+            $("#input-label").hide();
+            $("#add").show();
+            $("#tag-area").empty();
+            $.getJSON("get_tag_data/", function (ret) {
+            for(var tag in ret){
+                var tag_button="<button type='button' class='badge badge-pill btn btn-outline-dark'>\n"+
+                    "<small>"+tag+"</small>\n"+
+                    "<span class='badge badge-pill badge-info'><small>"+ret[tag]+"</small></span>\n</button>&nbsp;";
+            $("#tag-area").append(tag_button);
+        }
+
+            })
+        }
+
+    }
+    );
+});
+
+    $(document).ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+});
+
+
+{% endblock %}
