@@ -10,22 +10,11 @@ class Singer(models.Model):
     def __str__(self):
         return self.name
 
-class Tag(models.Model):
-    name = models.CharField(max_length=250)
-    num=models.IntegerField(default=1)
-
-    class Meta:
-        ordering=('-num',)
-
-    def __str__(self):
-        return self.name
-
 
 class Song(models.Model):
     name=models.CharField(max_length=250)
     singer=models.ForeignKey(Singer,on_delete=models.CASCADE,related_name='songs')
     slug=models.SlugField(max_length=250,db_index=True, unique=True)
-    tags=models.ManyToManyField(Tag,related_name='related_songs',blank=True)
     file=models.FileField(upload_to='song_files/audio',blank=True)
     poster=models.ImageField(upload_to='song_files/poster',blank=True)
 

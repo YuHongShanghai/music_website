@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404
-from .models import Song,Tag
+from .models import Song
 from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
@@ -24,38 +24,9 @@ def song_list(request):
 
 
 def song_detail(request,song_slug):
-    if request.method=='POST':
-        tag_name=request.POST['tag_name']
-        data = {}
-        if len(tag_name)>8:
-            data['msg']='long'
-            return JsonResponse(data)
-        if len(tag_name)==0:
-            data['msg']='short'
-            return JsonResponse(data)
-        song = get_object_or_404(Song, slug=song_slug)
+    song=get_object_or_404(Song,slug=song_slug)
+    return render(request,'detail.html',{'song':song,'user':request.user})
 
-        try:
-            t=song.tags.get(name=tag_name)
-            t.num += 1
-            t.save()
-        except Tag.DoesNotExist:
-            tag = Tag()
-            tag.name = tag_name
-            tag.save()
-            song.tags.add(tag)
-        data['msg']='success'
-        return JsonResponse(data)
-    else:
-        song=get_object_or_404(Song,slug=song_slug)
-        return render(request,'detail.html',{'song':song,'user':request.user})
-
-def get_tag_data(request,song_slug):
-    song = get_object_or_404(Song, slug=song_slug)
-    data={}
-    for tag in song.tags.all():
-        data[tag.name]=str(tag.num)
-    return JsonResponse(data)
 
 
 
