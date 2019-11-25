@@ -18,7 +18,7 @@
             <p></p>
         </div>
          <div class="col-md-2">
-             <button type="button" class="btn btn-outline-primary" id="search">搜索</button>
+             <button type="button" class="btn btn-primary" id="search">搜索</button>
          </div>
     </div>
 
@@ -57,7 +57,7 @@
         <div class="col-md-4 offset-md-4">
             <ul class="pagination">
                 {% if songs.has_previous %}
-                    <li class="page-item"><a class="page-link" href="??search_word={{ search_word }}&sort={{ sort }}&page={{ songs.previous_page_number }}"><</a></li>
+                    <li class="page-item"><a class="page-link" href="?search_word={{ search_word }}&sort={{ sort }}&page={{ songs.previous_page_number }}"><</a></li>
                 {% endif %}
                 {% for i in songs.number|nrange:songs.paginator.num_pages %}
                      {% if i == songs.number %}

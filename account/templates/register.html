@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}注册{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <h1 class="text-primary">用户注册</h1>
+    </div>
+    <div class="row justify-content-center">
+        <form action="." method="post">
+            {% csrf_token %}
+                <p>
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                    <label class="text-danger" id="msg1"></label>
+                </p>
+                <p>
+                    {{ form.password.label_tag }}
+                    {{ form.password }}
+                </p>
+                <p>
+                    {{ form.repassword.label_tag }}
+                    {{ form.repassword }}
+                </p>
+            <p><button type="submit" class="btn btn-primary">立即注册</button></p>
+            {% if msg %}
+                 <h6 class="text-danger">{{ msg }}</h6>
+            {% endif %}
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    $(document).ready(function(){
+
+        $.ajaxSetup({
+          async: false
+          });
+        $("#id_username").focus(function(){
+            $("#msg1").text("");
+        });
+
+        $("#id_username").blur(function(){
+            $.post(window.location.href,
+            {
+                "check":$(this).val()
+            },function(data,status){
+                var msg=data['msg'];
+                $("#msg1").text(msg);
+            });
+
+       });
+    });
+
+    $(document).ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+
+
+    });
+{% endblock %}
+

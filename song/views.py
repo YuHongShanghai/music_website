@@ -20,7 +20,7 @@ def song_list(request):
     except EmptyPage:
         songs = paginator.page(paginator.num_pages)
 
-    return render(request, 'list.html', {'songs': songs,'search_word': word,'sort':sort})
+    return render(request, 'list.html', {'songs': songs,'search_word': word,'sort':sort,'user':request.user})
 
 
 def song_detail(request,song_slug):
@@ -48,7 +48,7 @@ def song_detail(request,song_slug):
         return JsonResponse(data)
     else:
         song=get_object_or_404(Song,slug=song_slug)
-        return render(request,'detail.html',{'song':song})
+        return render(request,'detail.html',{'song':song,'user':request.user})
 
 def get_tag_data(request,song_slug):
     song = get_object_or_404(Song, slug=song_slug)

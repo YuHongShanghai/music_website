@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %} {{song.name}} {% endblock %}
 {% block content %}
@@ -16,10 +17,22 @@
         <img id="poster" class="rounded-circle  center-block" src="{{ song.poster.url }}" height="200" width="200" alt="暂无图片" >
     </div>
     <div class="row justify-content-center">
-        <audio src="{{ song.file.url }}" controls="controls">
-        您的浏览器不支持播放此类文件
+        <h6 class="text-muted">点击图片 播放/暂停</h6>
+    </div>
+    <div class="row justify-content-center">
+        <audio id="audio">
+            <source src="{{ song.file.url }}">
+            您的浏览器不支持播放此类文件
         </audio>
     </div>
+    <div class="row justify-content-center">
+        <div class="col-md-2">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" style="width:0"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
         <h4 id="tag-area">
         {% for tag in song.tags.all %}
@@ -47,10 +60,13 @@
 {% endblock %}
 
 {% block js %}
+
+
 $(document).ready(function(){
-    var audio=$("audio")[0];
+     var audio=$("audio")[0];
     var timer=null;
     var angle = 0;
+
     audio.addEventListener("play",function(){
         timer=setInterval(function(){
                 angle+=0.3;
@@ -60,6 +76,28 @@ $(document).ready(function(){
     audio.addEventListener("pause",function(){
         clearInterval(timer);
     });
+
+    $("#poster").click(
+        function(){
+            if(audio.paused) audio.play();
+            else audio.pause();
+        }
+    );
+
+    setInterval(function(){
+            var cur=audio.currentTime;
+            var audio_len=audio.duration;
+            $(".progress-bar").css("width",cur/audio_len*100+"%");
+            var sect=parseInt(audio_len%60);
+            var mint=parseInt(audio_len/60);
+
+             var sec=parseInt(cur%60);
+             var min=parseInt(cur/60);
+
+            $(".progress-bar").text(min+":"+sec+"/"+mint+":"+sect);
+        },500);
+
+
 
     $("#input-label").hide();
     $("#info").hide();
@@ -119,6 +157,9 @@ $(document).ready(function(){
 
     }
     );
+
+
+
 });
 
     $(document).ajaxSend(function(event, xhr, settings) {

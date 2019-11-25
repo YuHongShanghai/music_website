@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'song.apps.SongConfig',
     'account.apps.AccountConfig',
-    'sorl.thumbnail',
 ]
 
 MIDDLEWARE = [
