@@ -1,0 +1,595 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 歌曲列表 </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/mycss.css" rel="stylesheet">
+    <script src="/static/js/jquery-3.4.1.min.js"></script>
+    <script>
+
+$(document).ready(function(){
+    var songs_url=new Array();
+    var songs_name=new Array();
+    var cur_index=0;
+    var local_index=0;
+    var ele_play=null;
+
+        songs_url[0]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E7%88%B1%E6%83%85%E5%BA%9F%E6%9F%B4.mp3";
+        songs_name[0]="爱情废柴"+"-"+"周杰伦";
+
+        songs_url[1]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E7%99%BD%E8%89%B2%E9%A3%8E%E8%BD%A6.mp3";
+        songs_name[1]="白色风车"+"-"+"周杰伦";
+
+        songs_url[2]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%8D%8A%E5%9F%8E%E7%83%9F%E6%B2%99.mp3";
+        songs_name[2]="半城烟沙"+"-"+"许嵩";
+
+        songs_url[3]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E6%9C%AC%E8%8D%89%E7%BA%B2%E7%9B%AE.mp3";
+        songs_name[3]="本草纲目"+"-"+"周杰伦";
+
+        songs_url[4]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E4%B8%8D%E8%AF%A5_with_aMEI.mp3";
+        songs_name[4]="不该"+"-"+"周杰伦";
+
+        songs_url[5]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%8B%86%E4%B8%9C%E5%A2%99.mp3";
+        songs_name[5]="拆东墙"+"-"+"许嵩";
+
+        songs_url[6]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%9F%8E%E5%BA%9C.mp3";
+        songs_name[6]="城府"+"-"+"许嵩";
+
+        songs_url[7]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%BA%8A%E8%BE%B9%E6%95%85%E4%BA%8B.mp3";
+        songs_name[7]="床边故事"+"-"+"周杰伦";
+
+        songs_url[8]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%A4%A7%E5%8D%83%E4%B8%96%E7%95%8C.mp3";
+        songs_name[8]="大千世界"+"-"+"许嵩";
+
+        songs_url[9]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%96%AD%E6%A1%A5%E6%AE%8B%E9%9B%AA.mp3";
+        songs_name[9]="断桥残血"+"-"+"许嵩";
+
+        songs_url[10]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%A4%9A%E4%BD%99%E7%9A%84%E8%A7%A3%E9%87%8A.mp3";
+        songs_name[10]="多余的解释"+"-"+"许嵩";
+
+        songs_url[11]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%91%8A%E7%99%BD%E6%B0%94%E7%90%83.mp3";
+        songs_name[11]="告白气球"+"-"+"周杰伦";
+
+        songs_url[12]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E7%BA%A2%E6%A8%A1%E4%BB%BF.mp3";
+        songs_name[12]="红模仿"+"-"+"周杰伦";
+
+        songs_url[13]="/media/song_files/audio/%E8%94%A1%E5%81%A5%E9%9B%85_-_%E7%BA%A2%E8%89%B2%E9%AB%98%E8%B7%9F%E9%9E%8B.mp3";
+        songs_name[13]="红色高跟鞋"+"-"+"蔡健雅";
+
+        songs_url[14]="/media/song_files/audio/%E9%9F%B3%E9%98%99%E8%AF%97%E5%90%AC_-_%E7%BA%A2%E6%98%AD%E6%84%BF.mp3";
+        songs_name[14]="红昭愿"+"-"+"音阙诗听";
+
+        songs_url[15]="/media/song_files/audio/G.E.M.%E9%82%93%E7%B4%AB%E6%A3%8B_-_%E7%94%BB_Live_Piano_Session_II.mp3";
+        songs_name[15]="画"+"-"+"邓紫棋";
+
+        songs_url[16]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%B9%BB%E5%90%AC.mp3";
+        songs_name[16]="幻听"+"-"+"许嵩";
+
+        songs_url[17]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E7%81%B0%E8%89%B2%E5%A4%B4%E5%83%8F.mp3";
+        songs_name[17]="灰色头像"+"-"+"许嵩";
+
+        songs_url[18]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E8%83%A1%E8%90%9D%E5%8D%9C%E9%A1%BB.mp3";
+        songs_name[18]="胡萝卜须"+"-"+"许嵩";
+
+        songs_url[19]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9%E9%BB%84%E9%BE%84_-_%E6%83%8A%E9%B8%BF%E4%B8%80%E9%9D%A2.mp3";
+        songs_name[19]="惊鸿一面"+"-"+"许嵩";
+
+        songs_url[20]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E8%8F%8A%E8%8A%B1%E5%8F%B0.mp3";
+        songs_name[20]="菊花台"+"-"+"周杰伦";
+
+        songs_url[21]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%BA%90%E5%B7%9E%E6%9C%88.mp3";
+        songs_name[21]="庐州月"+"-"+"许嵩";
+
+        songs_url[22]="/media/song_files/audio/%E9%9F%B3%E9%98%99%E8%AF%97%E5%90%AC%E8%B5%B5%E6%96%B9%E5%A9%A7_-_%E8%8A%92%E7%A7%8D.mp3";
+        songs_name[22]="芒种"+"-"+"音阙诗听";
+
+        songs_url[23]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E7%8E%AB%E7%91%B0%E8%8A%B1%E7%9A%84%E8%91%AC%E7%A4%BC.mp3";
+        songs_name[23]="玫瑰花的葬礼"+"-"+"许嵩";
+
+        songs_url[24]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E8%BF%B7%E8%BF%AD%E9%A6%99.mp3";
+        songs_name[24]="迷迭香"+"-"+"周杰伦";
+
+        songs_url[25]="/media/song_files/audio/Uu_-_%E9%82%A3%E5%A5%B3%E5%AD%A9%E5%AF%B9%E6%88%91%E8%AF%B4_%E5%AE%8C%E6%95%B4%E7%89%88.mp3";
+        songs_name[25]="那女孩对我说"+"-"+"UU";
+
+        songs_url[26]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E4%BD%A0%E8%8B%A5%E6%88%90%E9%A3%8E.mp3";
+        songs_name[26]="你若成风"+"-"+"许嵩";
+
+        songs_url[27]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%8D%83%E7%99%BE%E5%BA%A6.mp3";
+        songs_name[27]="千百度"+"-"+"许嵩";
+
+        songs_url[28]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%8D%83%E9%87%8C%E4%B9%8B%E5%A4%96.mp3";
+        songs_name[28]="千里之外"+"-"+"周杰伦";
+
+        songs_url[29]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%B8%85%E6%98%8E%E9%9B%A8%E4%B8%8A.mp3";
+        songs_name[29]="清明雨上"+"-"+"许嵩";
+
+        songs_url[30]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%89%8D%E4%B8%96%E6%83%85%E4%BA%BA.mp3";
+        songs_name[30]="前世情人"+"-"+"周杰伦";
+
+        songs_url[31]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%85%A8%E7%90%83%E5%8F%98%E5%86%B7.mp3";
+        songs_name[31]="全球变冷"+"-"+"许嵩";
+
+        songs_url[32]="/media/song_files/audio/Taylor_Swift_-_Red.mp3";
+        songs_name[32]="Red"+"-"+"Taylor Swift";
+
+        songs_url[33]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E8%AE%A4%E9%94%99.mp3";
+        songs_name[33]="认错"+"-"+"许嵩";
+
+        songs_url[34]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%A6%82%E6%9E%9C%E5%BD%93%E6%97%B6.mp3";
+        songs_name[34]="如果当时"+"-"+"许嵩";
+
+        songs_url[35]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%B1%B1%E6%B0%B4%E4%B9%8B%E9%97%B4.mp3";
+        songs_name[35]="山水之间"+"-"+"许嵩";
+
+        songs_url[36]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%91%84%E5%BD%B1%E8%89%BA%E6%9C%AF.mp3";
+        songs_name[36]="摄影艺术"+"-"+"许嵩";
+
+        songs_url[37]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_%E8%AF%B4%E5%A5%BD%E4%B8%8D%E5%93%ADwith_%E4%BA%94%E6%9C%88%E5%A4%A9%E9%98%BF%E4%BF%A1.mp3";
+        songs_name[37]="说好不哭"+"-"+"周杰伦";
+
+        songs_url[38]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E8%AF%B4%E8%B5%B0%E5%B0%B1%E8%B5%B0.mp3";
+        songs_name[38]="说走就走"+"-"+"周杰伦";
+
+        songs_url[39]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%A4%A9%E9%BE%99%E5%85%AB%E9%83%A8%E4%B9%8B%E5%AE%BF%E6%95%8C.mp3";
+        songs_name[39]="天龙八部之宿敌"+"-"+"许嵩";
+
+        songs_url[40]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9%E4%BD%95%E6%9B%BC%E5%A9%B7_-_%E7%B4%A0%E9%A2%9C.mp3";
+        songs_name[40]="素颜"+"-"+"许嵩";
+
+        songs_url[41]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E5%8F%B9%E6%9C%8D.mp3";
+        songs_name[41]="叹服"+"-"+"许嵩";
+
+        songs_url[42]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%90%AC%E5%A6%88%E5%A6%88%E7%9A%84%E8%AF%9D_20190720_154126.mp3";
+        songs_name[42]="听妈妈的话"+"-"+"周杰伦";
+
+        songs_url[43]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%9C%9F%E8%80%B3%E5%85%B6%E5%86%B0%E6%B7%87%E6%B7%8B.mp3";
+        songs_name[43]="土耳其冰淇凌"+"-"+"周杰伦";
+
+        songs_url[44]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E9%80%80%E5%90%8E.mp3";
+        songs_name[44]="退后"+"-"+"周杰伦";
+
+        songs_url[45]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%88%91%E6%83%B3%E7%89%B5%E7%9D%80%E4%BD%A0%E7%9A%84%E6%89%8B.mp3";
+        songs_name[45]="我想牵着你的手"+"-"+"许嵩";
+
+        songs_url[46]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%83%B3%E8%B1%A1%E4%B9%8B%E4%B8%AD.mp3";
+        songs_name[46]="想象之中"+"-"+"许嵩";
+
+        songs_url[47]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%98%9F%E5%BA%A7%E4%B9%A6%E4%B8%8A.mp3";
+        songs_name[47]="星座书上"+"-"+"许嵩";
+
+        songs_url[48]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%BF%83%E9%9B%A8.mp3";
+        songs_name[48]="心雨"+"-"+"周杰伦";
+
+        songs_url[49]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E9%9B%85%E4%BF%97%E5%85%B1%E8%B5%8F.mp3";
+        songs_name[49]="雅俗共赏"+"-"+"许嵩";
+
+        songs_url[50]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E5%A4%9C%E7%9A%84%E7%AC%AC%E4%B8%83%E7%AB%A0.mp3";
+        songs_name[50]="夜的第七章"+"-"+"周杰伦";
+
+        songs_url[51]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E4%B8%80%E7%82%B9%E7%82%B9.mp3";
+        songs_name[51]="一点点"+"-"+"周杰伦";
+
+        songs_url[52]="/media/song_files/audio/%E8%B4%B9%E7%8E%89%E6%B8%85_-_%E4%B8%80%E5%89%AA%E6%A2%85.mp3";
+        songs_name[52]="一剪梅"+"-"+"费玉清";
+
+        songs_url[53]="/media/song_files/audio/%E5%91%A8%E6%9D%B0%E4%BC%A6_-_.%E8%8B%B1%E9%9B%84.mp3";
+        songs_name[53]="英雄"+"-"+"周杰伦";
+
+        songs_url[54]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%9C%89%E4%BD%95%E4%B8%8D%E5%8F%AF.mp3";
+        songs_name[54]="有何不可"+"-"+"许嵩";
+
+        songs_url[55]="/media/song_files/audio/%E8%AE%B8%E5%B5%A9_-_%E6%9C%80%E4%BD%B3%E6%AD%8C%E6%89%8B.mp3";
+        songs_name[55]="最佳歌手"+"-"+"许嵩";
+
+
+    var sort='0';
+    $("#search-bar").keypress(function (e){
+        if (e.which == 13) {
+             var word=$(this).val();
+            $(window).attr('location','?search_word='+word);
+        }
+    });
+
+    $("#search").click(function (){
+        var word=$("#search-bar").val();
+        $(window).attr('location','?search_word='+word);
+    });
+
+    $("#sort_by_name").click(function(){
+       sort='0';
+       $(this).attr('href',"?search_word=&sort="+sort+"&page=3");
+    });
+
+    $("#sort_by_singer").click(function(){
+        sort='1';
+        $(this).attr('href',"?search_word=&sort="+sort+"&page=3");
+    });
+
+    function next_song(){
+        cur_index+=1;
+        var audio=$("audio")[0];
+        if(cur_index==songs_url.length) cur_index=0;
+        $("#cur-song").text(songs_name[cur_index]);
+        $("#audio").attr('src',songs_url[cur_index]);
+        audio.load();
+        audio.play();
+    }
+
+    function prev_song(){
+        cur_index-=1;
+        var audio=$("audio")[0];
+        if(cur_index==-1) cur_index=songs_url.length-1;
+        $("#cur-song").text(songs_name[cur_index]);
+        $("#audio").attr('src',songs_url[cur_index]);
+        audio.load();
+        audio.play();
+    }
+
+    $("audio")[0].addEventListener("ended",function(){
+        next_song();
+    });
+
+    $(".play").click(function(){
+        if(ele_play!=null){
+            ele_play.empty();
+            var button_html = "<button type='button' class='btn btn-link btn-sm play' value=" + local_index +
+                "><img src='/static/img/play.jpg' class='rounded-circle' height='22' width='22' alt=''></button>";
+            ele_play.append(button_html);
+        }
+
+        local_index=parseInt($(this).attr("value"));
+        cur_index=local_index+10*3-10;
+        $("#cur-song").text(songs_name[cur_index]);
+        var audio=$("audio")[0];
+        $("#audio").attr('src',songs_url[cur_index]);
+        audio.load();
+        audio.play();
+        $("#control").text("暂停");
+       ele_play=$(this).parent();
+
+        ele_play.empty();
+        var progress_html="<div class='progress' style='height:5px;'>"+
+                        "<div class='progress-bar' style='width:0'></div>"+
+    "</div><p id='cur-time'></p>";
+        ele_play.append(progress_html);
+         setInterval(function(){
+            var cur=audio.currentTime;
+            var audio_len=audio.duration;
+            $(".progress-bar").css("width",cur/audio_len*100+"%");
+            var sect=parseInt(audio_len%60);
+            var mint=parseInt(audio_len/60);
+
+             var sec=parseInt(cur%60);
+             var min=parseInt(cur/60);
+            $("#cur-time").text(min+":"+sec+"/"+mint+":"+sect);
+    },500);
+
+    });
+
+    $("#control").click(
+        function(){
+            if(audio.paused){
+                if($("#audio").attr('src')==""){
+                        $("#audio").attr('src',songs_url[cur_index]);
+                         $("#cur-song").text(songs_name[cur_index]);
+                    }
+
+                audio.play();
+                $("#control").text("暂停");
+            }
+            else{
+                audio.pause();
+                $("#control").text("播放");
+            }
+        }
+    );
+
+
+    $("#next-song").click(function(){
+        next_song();
+    });
+
+    $("#prev-song").click(function(){
+        prev_song();
+    });
+
+});
+
+    $(document).ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+
+
+    });
+
+
+    </script>
+</head>
+
+<body>
+    <div id="content" class="container-fluid">
+    <div class="row bg-light">
+        <div class="col-md-4 offset-md-4">
+            <nav class="navbar navbar-expand-sm bg-light">
+            <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#">我的</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/music/">首页</a>
+            </li>
+            </ul>
+            </nav>
+        </div>
+
+        <div class="col-md-4">
+            <nav class="navbar navbar-expand-sm bg-light">
+                <ul class="navbar-nav">
+
+                         <a class="nav-link" href="/account/login/">登录</a>
+                        <a class="nav-link" href="/account/register/">注册</a>
+
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-11 text-center">
+          <h1>歌曲列表</h1>
+        </div>
+    </div>
+
+    <div class="row ">
+        <div class="col-md-3 offset-md-4">
+
+                <input type="text" class="form-control"  id="search-bar" placeholder="搜索歌名或歌手">
+
+            <p></p>
+        </div>
+         <div class="col-md-2">
+             <button type="button" class="btn btn-primary" id="search">搜索</button>
+         </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-4 offset-md-4">
+            <table class="table table-hover song-link">
+            <thead class="thead-light w-100">
+              <tr class="row mx-0">
+                  <th class="col-md-6"><a href="#" id="sort_by_name">&nbsp;&nbsp;&nbsp;&nbsp;歌曲名称</a></th>
+                  <th class="col-md-6"><a href="#" id="sort_by_singer">歌手</a></th>
+              </tr>
+            </thead>
+            <tbody class="w-100">
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E5%91%A8%E6%9D%B0%E4%BC%A61_OFdcgcK.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/juhuatai/">&nbsp;&nbsp;菊花台</a>
+                </td>
+                <td class="col-md-3">周杰伦</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="0">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E8%AE%B8%E5%B5%A91_hQiOpoI.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/luzhuoyue/">&nbsp;&nbsp;庐州月</a>
+                </td>
+                <td class="col-md-3">许嵩</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="1">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E8%8A%92%E7%A7%8D.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/mangzhong/">&nbsp;&nbsp;芒种</a>
+                </td>
+                <td class="col-md-3">音阙诗听</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="2">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E8%AE%B8%E5%B5%A91_L4mFYxf.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/meiguihuadezangli/">&nbsp;&nbsp;玫瑰花的葬礼</a>
+                </td>
+                <td class="col-md-3">许嵩</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="3">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E5%91%A8%E6%9D%B0%E4%BC%A62_AIGyr1g.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/midixiang/">&nbsp;&nbsp;迷迭香</a>
+                </td>
+                <td class="col-md-3">周杰伦</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="4">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E9%82%A3%E5%A5%B3%E5%AD%A9%E5%AF%B9%E6%88%91%E8%AF%B4.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/nanvhaidduiwoshuo/">&nbsp;&nbsp;那女孩对我说</a>
+                </td>
+                <td class="col-md-3">UU</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="5">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E8%AE%B8%E5%B5%A92_d2DMSMU.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/niruochengfeng/">&nbsp;&nbsp;你若成风</a>
+                </td>
+                <td class="col-md-3">许嵩</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="6">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E8%AE%B8%E5%B5%A92_NSuEDxS.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/qianbaidu/">&nbsp;&nbsp;千百度</a>
+                </td>
+                <td class="col-md-3">许嵩</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="7">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E5%91%A8%E6%9D%B0%E4%BC%A63_YJUOqKt.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/qianlizhiwai/">&nbsp;&nbsp;千里之外</a>
+                </td>
+                <td class="col-md-3">周杰伦</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="8">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+              <tr class="row mx-0">
+                <td class="col-md-6">
+                    <img src="/media/song_files/poster/%E8%AE%B8%E5%B5%A93_lhUWm0a.jpg" class="rounded border-light" height="30" width="30" alt="">
+                    <a href="/music/qingmingyushang/">&nbsp;&nbsp;清明雨上</a>
+                </td>
+                <td class="col-md-3">许嵩</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="9">
+                        <img src="/static/img/play.jpg" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                </td>
+              </tr>
+
+            </tbody>
+        </table>
+        </div>
+
+    </div>
+
+     <div class="row ">
+        <div class="col-md-3 offset-md-4">
+            <ul class="pagination">
+
+                    <li class="page-item"><a class="page-link" href="?search_word=&sort=0&page=2"><</a></li>
+
+
+
+                         <li class="page-item"><a class="page-link" href="?search_word=&sort=0&page=1">1</a></li>
+
+
+
+                         <li class="page-item"><a class="page-link" href="?search_word=&sort=0&page=2">2</a></li>
+
+
+
+                         <li class="page-item active"><a class="page-link" href="?search_word=&sort=0&page=3">3</a></li>
+
+
+
+                         <li class="page-item"><a class="page-link" href="?search_word=&sort=0&page=4">4</a></li>
+
+
+
+                         <li class="page-item"><a class="page-link" href="?search_word=&sort=0&page=5">5</a></li>
+
+
+
+
+                    <li class="page-item"><a class="page-link" href="?search_word=&sort=0&page=4">></a></li>
+
+            </ul>
+        </div>
+         <div class="col-md-1">
+             <h6 class="text-primary" ><p>当前歌曲:</p></h6>
+             <h6 id="cur-song"></h6>
+         </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-outline-primary" id="prev-song">上一首</button>
+            <button type="button" class="btn btn-outline-primary" id="next-song">下一首</button>
+            <button type="button" class="btn btn-primary btn-sm" id="control">播放</button>
+        </div>
+     </div>
+    <div class="row " style="display:none;">
+        <div class="col-md-4 offset-md-4">
+            <audio id="audio" src="">
+                您的浏览器不支持播放此类文件
+            </audio>
+        </div>
+    </div>
+
+
+    </div>
+</body>
+</html>

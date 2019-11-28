@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load custom_template %}
 {% block title %} 歌曲列表 {% endblock %}
 {% block content %}
@@ -25,11 +26,11 @@
     <div class="row">
         {% if songs|length > 0 %}
         <div class="col-md-4 offset-md-4">
-            <table class="table table-hover row mx-0 song-link">
+            <table class="table table-hover song-link">
             <thead class="thead-light w-100">
               <tr class="row mx-0">
                   <th class="col-md-6"><a href="#" id="sort_by_name">&nbsp;&nbsp;&nbsp;&nbsp;歌曲名称</a></th>
-                  <th class="col-md-3"><a href="#" id="sort_by_singer">歌手</a></th>
+                  <th class="col-md-6"><a href="#" id="sort_by_singer">歌手</a></th>
               </tr>
             </thead>
             <tbody class="w-100">
@@ -40,6 +41,18 @@
                     <a href="{{ song.get_absolute_url }}">&nbsp;&nbsp;{{ song.name }}</a>
                 </td>
                 <td class="col-md-3">{{ song.singer.name }}</td>
+                <td class="col-md-3">
+                    <button type="button" class="btn btn-link btn-sm play" value="{{ forloop.counter0 }}" data-toggle="tooltip" data-placement="top" title="播放">
+                        <img src="{% static "img/play.jpg" %}" class="rounded-circle" height="22" width="22" alt="">
+                    </button>
+                    <div class="playing">
+                         <div class='progress' style='height:5px;'>
+                            <div class='progress-bar' style='width:0'></div>
+                        </div>
+                        <p class="show_time"></p>
+                    </div>
+
+                </td>
               </tr>
             {% endfor %}
             </tbody>
@@ -47,14 +60,14 @@
         </div>
         {% else %}
             <div class="col-md-11 text-center">
-                <p></p><p></p><p>
+                <p></p><p></p><p></p>
                 <h1 class="text-muted">没有搜索结果</h1>
             </div>
         {% endif %}
     </div>
     {% if songs|length > 0 %}
      <div class="row ">
-        <div class="col-md-4 offset-md-4">
+        <div class="col-md-2 offset-md-4">
             <ul class="pagination">
                 {% if songs.has_previous %}
                     <li class="page-item"><a class="page-link" href="?search_word={{ search_word }}&sort={{ sort }}&page={{ songs.previous_page_number }}"><</a></li>
@@ -72,12 +85,51 @@
                 {% endif %}
             </ul>
         </div>
+        <div class="col-md-1 text-primary">
+            音量 <input type="range" min="0" max="100" value="80" step="5" onchange="set_volume(this.value)">
+        </div>
+         <div class="col-md-1">
+             <h6 class="text-primary" ><p>当前歌曲:</p></h6>
+             <h6 id="cur-song"></h6>
+         </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-outline-primary" id="prev-song">上一首</button>
+            <button type="button" class="btn btn-outline-primary" id="next-song">下一首</button>
+            <button type="button" class="btn btn-primary btn-sm" id="control">播放</button>
+        </div>
      </div>
+    <div class="row " style="display:none;">
+        <div class="col-md-4 offset-md-4">
+            <audio id="audio" src="">
+                您的浏览器不支持播放此类文件
+            </audio>
+        </div>
+    </div>
     {% endif %}
 {% endblock %}
 
 {% block js %}
+
+function set_volume(vol){
+    audio.volume =vol/100;
+}
+
 $(document).ready(function(){
+    var songs_url=new Array();
+    var songs_name=new Array();
+    var cur_index=0;
+    var local_index=0;
+    var timer=null;
+    var ele_play=null;
+    var audio=$("audio")[0];
+    audio.volume =0.8;
+
+    $(".playing").hide();
+    {% for song in all_songs  %}
+        songs_url[{{forloop.counter0}}]="{{song.file.url}}";
+        songs_name[{{forloop.counter0}}]="{{ song.name }}"+"-"+"{{ song.singer.name }}";
+    {% endfor %}
+
     var sort='0';
     $("#search-bar").keypress(function (e){
         if (e.which == 13) {
@@ -101,5 +153,183 @@ $(document).ready(function(){
         $(this).attr('href',"?search_word={{ search_word }}&sort="+sort+"&page={{ songs.number }}");
     });
 
+
+
+    function next_song(){
+        if(ele_play!=null){
+            ele_play.show();
+            ele_play.next().hide();
+        }
+
+        cur_index+=1;
+
+        if(cur_index==songs_url.length) cur_index=0;
+        $("#cur-song").text(songs_name[cur_index]);
+        $("#audio").attr('src',songs_url[cur_index]);
+        audio.load();
+        audio.play();
+        $("#control").text("暂停");
+
+        local_index+=1;
+        if(local_index<10){
+            ele_play=$("button[value='"+local_index+"']");
+            ele_play.hide();
+            ele_play.next().show();
+
+            if(timer!=null) clearInterval(timer);
+            timer=setInterval(function(){
+            var cur=audio.currentTime;
+            var audio_len=audio.duration;
+            $(".playing :visible div:first").css("width",cur/audio_len*100+"%");
+            var sect=parseInt(audio_len%60);
+            var mint=parseInt(audio_len/60);
+
+             var sec=parseInt(cur%60);
+             var min=parseInt(cur/60);
+            $(".show_time").eq(local_index).text(min+":"+sec+"/"+mint+":"+sect);
+            },500);
+        }
+
+    }
+
+    function prev_song(){
+        if(ele_play!=null){
+            ele_play.show();
+            ele_play.next().hide();
+        }
+
+        cur_index-=1;
+        if(cur_index==-1) cur_index=songs_url.length-1;
+        $("#cur-song").text(songs_name[cur_index]);
+        $("#audio").attr('src',songs_url[cur_index]);
+        audio.load();
+        audio.play();
+        $("#control").text("暂停");
+
+        local_index-=1;
+        if(local_index>=0){
+            ele_play=$("button[value='"+local_index+"']");
+            ele_play.hide();
+            ele_play.next().show();
+
+            if(timer!=null) clearInterval(timer);
+            timer=setInterval(function(){
+            var cur=audio.currentTime;
+            var audio_len=audio.duration;
+            $(".playing :visible div:first").css("width",cur/audio_len*100+"%");
+            var sect=parseInt(audio_len%60);
+            var mint=parseInt(audio_len/60);
+
+             var sec=parseInt(cur%60);
+             var min=parseInt(cur/60);
+            $(".show_time").eq(local_index).text(min+":"+sec+"/"+mint+":"+sect);
+            },500);
+        }
+    }
+
+    $("audio")[0].addEventListener("ended",function(){
+        next_song();
+    });
+
+    $(".play").click(function(){
+        if(ele_play!=null){
+            ele_play.show();
+            ele_play.next().hide();
+        }
+
+        local_index=parseInt($(this).attr("value"));
+        cur_index=local_index+10*{{ songs.number }}-10;
+        $("#cur-song").text(songs_name[cur_index]);
+        $("#audio").attr('src',songs_url[cur_index]);
+        audio.load();
+        audio.play();
+        $("#control").text("暂停");
+
+        $(this).hide();
+        $(this).next().show();
+        ele_play=$(this);
+
+        if(timer!=null) clearInterval(timer);
+         timer=setInterval(function(){
+            var cur=audio.currentTime;
+            var audio_len=audio.duration;
+            $(".playing :visible div:first").css("width",cur/audio_len*100+"%");
+            var sect=parseInt(audio_len%60);
+            var mint=parseInt(audio_len/60);
+
+             var sec=parseInt(cur%60);
+             var min=parseInt(cur/60);
+            $(".show_time").eq(local_index).text(min+":"+sec+"/"+mint+":"+sect);
+    },500);
+
+    });
+
+    $("#control").click(
+        function(){
+            if(audio.paused){
+                if($("#audio").attr('src')==""){
+                        $("#audio").attr('src',songs_url[cur_index]);
+                         $("#cur-song").text(songs_name[cur_index]);
+                    }
+
+                audio.play();
+                $("#control").text("暂停");
+            }
+            else{
+                audio.pause();
+                $("#control").text("播放");
+            }
+        }
+    );
+
+
+    $("#next-song").click(function(){
+        next_song();
+    });
+
+    $("#prev-song").click(function(){
+        prev_song();
+    });
+
 });
+
+    $(document).ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+
+
+    });
+
 {% endblock %}

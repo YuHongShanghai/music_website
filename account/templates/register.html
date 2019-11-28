@@ -21,6 +21,7 @@
                 <p>
                     {{ form.repassword.label_tag }}
                     {{ form.repassword }}
+                    <label class="text-danger" id="msg2"></label>
                 </p>
             <p><button type="submit" class="btn btn-primary">立即注册</button></p>
             {% if msg %}
@@ -33,7 +34,6 @@
 
 {% block js %}
     $(document).ready(function(){
-
         $.ajaxSetup({
           async: false
           });
@@ -51,6 +51,18 @@
             });
 
        });
+
+        $("#id_repassword").blur(function(){
+            var pass=$("#id_password").val();
+            var repass=$("#id_repassword").val();
+            if(pass!=repass) $("#msg2").text("两次输入的密码不一致");
+            $("#id_repassword").val("");
+        });
+
+        $("#id_repassword").focus(function(){
+            $("#msg2").text("");
+        });
+
     });
 
     $(document).ajaxSend(function(event, xhr, settings) {
