@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from .forms import LoginForm,RegisterForm
-from django.http import HttpResponseRedirect,JsonResponse
+from django.http import HttpResponseRedirect,JsonResponse,HttpResponse
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 
 def user_login(request):
@@ -53,3 +54,17 @@ def user_register(request):
     else:
         form = RegisterForm()
         return render(request, 'register.html', {'form': form})
+
+
+@login_required
+def my_songs(request):
+    songs=request.user.song_set.all()
+    return render(request, 'mysongs.html',{'songs': songs})
+
+def remove_song(request):
+    user = request.user
+    song_slug = request.GET.get("song_slug")
+    song=user.song_set.get(slug=song_slug)
+    user.song_set.remove(song)
+    user.save()
+    return HttpResponse("success")

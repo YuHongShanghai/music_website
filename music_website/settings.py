@@ -124,3 +124,5 @@ STATIC_URL = '/static/'
 
 MEDIA_URL='/media/'
 MEDIA_ROOT=BASE_DIR+'/song/'
+
+LOGIN_URL = '/account/login/'

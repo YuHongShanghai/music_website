@@ -2,8 +2,9 @@ from django.shortcuts import render,get_object_or_404
 from .models import Song
 from django.db.models import Q
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,HttpResponse
 from django.urls import reverse
+
 
 def song_list(request):
     sort=request.GET.get('sort','0')
@@ -20,7 +21,11 @@ def song_list(request):
         songs = paginator.page(1)
     except EmptyPage:
         songs = paginator.page(paginator.num_pages)
-    return render(request, 'list.html', {'all_songs':all_songs,'songs': songs,'search_word': word,'sort':sort,'user':request.user})
+    user=request.user
+    user_songs=set()
+    if user.is_authenticated:
+        user_songs=user.song_set.all()
+    return render(request, 'list.html', {'all_songs':all_songs,'songs': songs,'search_word': word,'sort':sort,'user_songs':user_songs})
 
 
 def song_detail(request,song_slug):
@@ -30,4 +35,16 @@ def song_detail(request,song_slug):
 
 def index(request):
     return HttpResponseRedirect(reverse('song:song_list'))
+
+
+def collect(request):
+    user=request.user
+    song_slug = request.GET.get("song_slug")
+    if not user.is_authenticated:
+        return HttpResponse(reverse('account:login'))
+    song=Song.objects.get(slug=song_slug)
+    user.song_set.add(song)
+    user.save()
+    return HttpResponse("success")
+
 

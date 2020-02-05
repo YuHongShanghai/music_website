@@ -29,14 +29,15 @@
             <table class="table table-hover song-link">
             <thead class="thead-light w-100">
               <tr class="row mx-0">
-                  <th class="col-md-6"><a href="#" id="sort_by_name">&nbsp;&nbsp;&nbsp;&nbsp;歌曲名称</a></th>
-                  <th class="col-md-6"><a href="#" id="sort_by_singer">歌手</a></th>
+                  <th class="col-md-4"><a href="#" id="sort_by_name">&nbsp;&nbsp;&nbsp;&nbsp;歌曲名称</a></th>
+                  <th class="col-md-3"><a href="#" id="sort_by_singer">歌手</a></th>
+                  <th class="col-md-5"><a href="#" id="sort_by_singer">操作</a></th>
               </tr>
             </thead>
             <tbody class="w-100">
             {% for song in songs %}
               <tr class="row mx-0">
-                <td class="col-md-6">
+                <td class="col-md-4">
                     <img src="{{ song.poster.url }}" class="rounded border-light" height="30" width="30" alt="">
                     <a href="{{ song.get_absolute_url }}">&nbsp;&nbsp;{{ song.name }}</a>
                 </td>
@@ -51,7 +52,16 @@
                         </div>
                         <p class="show_time"></p>
                     </div>
-
+                </td>
+                <td class="col-md-2">
+                    {% if song not in user_songs %}
+                        <button type="button" class="btn btn-link btn-sm collect" value="{{ song.slug }}" data-toggle="tooltip" data-placement="top" title="添加到歌单">
+                            <img src="{% static "img/collect.jpg" %}" class="rounded-circle" height="22" width="22" alt="">
+                        </button>
+                        <img src="{% static "img/collected.jpg" %}" class="rounded-circle collected" height="22" width="22" alt="">
+                    {% else %}
+                        <img src="{% static "img/collected.jpg" %}" class="rounded-circle" height="22" width="22" alt="">
+                    {% endif %}
                 </td>
               </tr>
             {% endfor %}
@@ -123,7 +133,7 @@ $(document).ready(function(){
     var ele_play=null;
     var audio=$("audio")[0];
     audio.volume =0.8;
-
+    $(".collected").hide();
     $(".playing").hide();
     {% for song in all_songs  %}
         songs_url[{{forloop.counter0}}]="{{song.file.url}}";
@@ -153,7 +163,19 @@ $(document).ready(function(){
         $(this).attr('href',"?search_word={{ search_word }}&sort="+sort+"&page={{ songs.number }}");
     });
 
-
+     $(".collect").click(function(){
+            song_slug=$(this).attr("value");
+            var item=$(this);
+            $.ajax({url:"{% url 'song:collect' %}?song_slug="+song_slug,success:function(result){
+                if(result=="success"){
+                    item.hide();
+                    item.next().show();
+                }
+                else{
+                    window.location.href=result;
+                }
+        }});
+    });
 
     function next_song(){
         if(ele_play!=null){

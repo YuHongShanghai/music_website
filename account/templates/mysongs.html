@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}我的歌单{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-11 text-center">
+          <h1>我的歌单</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 offset-md-2">
+            {% if songs|length > 0  %}
+            <div style="height: 700px;overflow: auto;">
+            <table class="table table-hover song-link">
+            <thead class="thead-light w-100">
+              <tr class="row mx-0">
+                  <th class="col-md-5">&nbsp;&nbsp;&nbsp;&nbsp;歌曲名称</th>
+                  <th class="col-md-3">歌手</th>
+                  <th class="col-md-4">操作</th>
+              </tr>
+            </thead>
+            <tbody class="w-100">
+                {% for song in songs %}
+                  <tr class="row mx-0" id="{{ song.slug }}">
+                    <td class="col-md-5">
+                        <img src="{{ song.poster.url }}" class="rounded border-light" height="30" width="30" alt="">
+                        <a href="{{ song.get_absolute_url }}">&nbsp;&nbsp;{{ song.name }}</a>
+                    </td>
+                    <td class="col-md-3">{{ song.singer.name }}</td>
+                    <td class="col-md-2">
+                        <button type="button" class="btn btn-link btn-sm play" value="{{ forloop.counter0 }}" data-toggle="tooltip" data-placement="top" title="播放">
+                            <img src="{% static "img/play.jpg" %}" class="rounded-circle" height="22" width="22" alt="">
+                            <span class="glyphicon glyphicon-download"></span>
+                        </button>
+                        <button type="button" class="btn btn-link btn-sm pause" data-toggle="tooltip" data-placement="top" title="暂停">
+                            <img src="{% static "img/pause.jpg" %}" class="rounded-circle" height="25" width="25" alt="">
+                        </button>
+                    </td>
+                   <td class="col-md-2">
+                        <button type="button" class="btn btn-link btn-sm remove" value="{{ song.slug }}" data-toggle="tooltip" data-placement="top" title="移除">
+                            <img src="{% static "img/remove.jpg" %}" class="rounded-circle" height="22" width="22" alt="">
+                        </button>
+                    </td>
+                  </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            </div>
+            {% else %}
+                <h2>您</h2>
+                <h2>的</h2>
+                <h2>歌</h2>
+                <h2>单</h2>
+                <h2>空</h2>
+                <h2>空</h2>
+                <h2>如</h2>
+                <h2>也</h2>
+            {% endif %}
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="text-primary text-center song-name">&nbsp;</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                   <h3 class="text-center song-singer">&nbsp;</h3>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <img id="poster" class="rounded-circle  center-block" src="{% static "img/default.jpg" %}" height="300" width="300" alt="暂无图片" >
+            </div>
+            <div class="row justify-content-center">
+                <h6 id="info" class="text-muted"><p></p>暂无歌曲播放</h6>
+            </div>
+            <div class="row justify-content-center">
+                <audio id="audio">
+                    <source src="">
+                    您的浏览器不支持播放此类文件
+                </audio>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" style="width:0"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div><p></p></div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-outline-primary" id="prev-song">上一首</button>
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-outline-primary" id="next-song">下一首</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    $(document).ready(function(){
+        var songs_url=new Array();
+        var songs_name=new Array();
+        var songs_singer=new Array();
+        var songs_poster=new Array();
+        var ele_play=null;
+        var cur_index=0;
+        var timer=null;
+        var angle = 0;
+
+        {% for song in songs  %}
+            songs_url[{{forloop.counter0}}]="{{song.file.url}}";
+            songs_name[{{forloop.counter0}}]="{{ song.name }}";
+            songs_singer[{{forloop.counter0}}]="{{ song.singer.name }}";
+            songs_poster[{{forloop.counter0}}]="{{ song.poster.url }}";
+        {% endfor %}
+
+        $(".progress").hide();
+        $(".pause").hide();
+
+        $(".remove").click(function(){
+            song_slug=$(this).attr("value");
+            var item=$(this);
+            $.ajax({url:"{% url 'account:removesong' %}?song_slug="+song_slug,success:function(result){
+                if(result=="success"){
+                    var index=parseInt($("#"+song_slug).children().eq(2).children().eq(0).attr("value"));
+                    songs_url.splice(index,1);
+                    songs_name.splice(index,1);
+                    songs_singer.splice(index,1);
+                    songs_poster.splice(index,1);
+                    for (i = index+1; i < songs_url.length+1; i++) {
+                        $("button[value='"+i+"']").attr("value",String(i-1));
+                     }
+                    $("#"+song_slug).remove();
+
+                }
+            }});
+        });
+
+        $(".play").click(function(){
+            if(ele_play!=null){
+                ele_play.show();
+                ele_play.next().hide();
+            }
+            else{
+                $("#info").text("点击图片 播放/暂停");
+                $(".progress").show();
+            }
+            $(this).hide();
+            $(this).next().show();
+            ele_play=$(this);
+            cur_index=parseInt($(this).attr("value"));
+            $(".song-name").text(songs_name[cur_index]);
+            $(".song-singer").text(songs_singer[cur_index]);
+            $("#poster").attr('src',songs_poster[cur_index]);
+            $("#audio").attr('src',songs_url[cur_index]);
+            audio.load();
+            audio.play();
+        });
+
+        $(".pause").click(function(){
+            $(this).hide();
+            $(this).prev().show();
+            audio.pause();
+        });
+
+        {#  图片旋转有关 #}
+        audio.addEventListener("play",function(){
+            timer=setInterval(function(){
+                    angle+=0.3;
+                  $("#poster").css({'transform':'rotate('+(angle)%360+'deg)'});
+              },10);
+        });
+        audio.addEventListener("pause",function(){
+            clearInterval(timer);
+        });
+
+        $("#poster").click(
+            function(){
+                if(audio.paused){
+                    ele_play.hide();
+                    ele_play.next().show();
+                    audio.play();}
+                else{
+                    ele_play.show();
+                    ele_play.next().hide();
+                    audio.pause();
+                    }
+
+            }
+        );
+
+        setInterval(function(){
+                var cur=audio.currentTime;
+                var audio_len=audio.duration;
+                $(".progress-bar").css("width",cur/audio_len*100+"%");
+                var sect=parseInt(audio_len%60);
+                var mint=parseInt(audio_len/60);
+
+                 var sec=parseInt(cur%60);
+                 var min=parseInt(cur/60);
+
+                $(".progress-bar").text(min+":"+sec+"/"+mint+":"+sect);
+            },500);
+
+{#        上一首、下一首#}
+        function next_song(){
+            if(ele_play!=null){
+                ele_play.show();
+                ele_play.next().hide();
+            }
+
+            cur_index+=1;
+
+            if(cur_index==songs_url.length) cur_index=0;
+            $(".song-name").text(songs_name[cur_index]);
+            $(".song-singer").text(songs_singer[cur_index]);
+            $("#poster").attr('src',songs_poster[cur_index]);
+            $("#audio").attr('src',songs_url[cur_index]);
+            audio.load();
+            audio.play();
+
+            ele_play=$("button[value='"+cur_index+"']");
+            ele_play.hide();
+            ele_play.next().show();
+
+            if(timer!=null) clearInterval(timer);
+            timer=setInterval(function(){
+                var cur=audio.currentTime;
+                var audio_len=audio.duration;
+                $(".playing :visible div:first").css("width",cur/audio_len*100+"%");
+                var sect=parseInt(audio_len%60);
+                var mint=parseInt(audio_len/60);
+
+                 var sec=parseInt(cur%60);
+                 var min=parseInt(cur/60);
+                $(".show_time").eq(local_index).text(min+":"+sec+"/"+mint+":"+sect);
+                },500);
+        }
+
+        function prev_song(){
+            if(ele_play!=null){
+                ele_play.show();
+                ele_play.next().hide();
+            }
+
+            cur_index-=1;
+            if(cur_index==-1) cur_index=songs_url.length-1;
+            $(".song-name").text(songs_name[cur_index]);
+            $(".song-singer").text(songs_singer[cur_index]);
+            $("#poster").attr('src',songs_poster[cur_index]);
+            $("#audio").attr('src',songs_url[cur_index]);
+            audio.load();
+            audio.play();
+
+            ele_play=$("button[value='"+cur_index+"']");
+            ele_play.hide();
+            ele_play.next().show();
+
+            if(timer!=null) clearInterval(timer);
+            timer=setInterval(function(){
+                var cur=audio.currentTime;
+                var audio_len=audio.duration;
+                $(".playing :visible div:first").css("width",cur/audio_len*100+"%");
+                var sect=parseInt(audio_len%60);
+                var mint=parseInt(audio_len/60);
+
+                 var sec=parseInt(cur%60);
+                 var min=parseInt(cur/60);
+                $(".show_time").eq(local_index).text(min+":"+sec+"/"+mint+":"+sect);
+                },500);
+
+        }
+        audio.addEventListener("ended",function(){
+            next_song();
+        });
+
+         $("#next-song").click(function(){
+            next_song();
+        });
+
+        $("#prev-song").click(function(){
+            prev_song();
+        });
+
+    });
+
+
+
+{#    AJAX相关#}
+    $(document).ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+
+
+    });
+{% endblock %}
